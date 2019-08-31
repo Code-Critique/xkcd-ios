@@ -1,0 +1,11 @@
+name: xkcd
+options:
+  minimumXcodeGenVersion: 2.5.0
+  bundleIdPrefix: com.codecritique
+targets:
+  xkcd:
+    type: application
+    platform: iOS
+    sources:
+      - sources
+      - assets
