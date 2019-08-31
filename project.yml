@@ -9,3 +9,6 @@ targets:
     sources:
       - sources
       - assets
+    postbuildScripts:
+      - path: scripts/swiftlint.sh
+        name: SwiftLint
