@@ -26,3 +26,4 @@ To install swiftLint run 'brew install swiftLint'
 ### Misc
 - We will be using the AirBnB [Style guide](https://github.com/airbnb/swift)
 - Out slack workspace is __CodeCritique.slack.com__
+- xkcd [api docs](https://xkcd.com/json.html)
