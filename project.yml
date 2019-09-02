@@ -9,6 +9,9 @@ targets:
     sources:
       - sources
       - assets
+
     postbuildScripts:
       - path: scripts/swiftlint.sh
         name: SwiftLint
+      - path: scripts/xcodeFormating.sh
+        name: XcodeFormating
