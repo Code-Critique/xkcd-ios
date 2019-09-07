@@ -13,8 +13,6 @@ targets:
     type:  bundle.unit-test
     platform: iOS
     sources:
-        - sources
-        - assets
         - xkcdTests
     dependencies:
       - target: xkcd
