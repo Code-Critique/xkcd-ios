@@ -9,7 +9,18 @@ targets:
     sources:
       - sources
       - assets
-
+  xkcdTests:
+    type:  bundle.unit-test
+    platform: iOS
+    sources:
+        - sources
+        - assets
+        - xkcdTests
+    dependencies:
+      - target: xkcd
+    scheme:
+      testTargets:
+        - xkcdTests
     postbuildScripts:
       - path: scripts/swiftlint.sh
         name: SwiftLint
