@@ -5,8 +5,17 @@
 //  Created by thomas minshull on 2019-09-06.
 //
 
-import Foundation
+import UIKit
 
-struct CommicModel {
+struct CommicModel: Codable {
+  let id: Int
+  let title: String
+  let imageURL: URL
+  var image: UIImage?
 
+  enum CodingKeys: String, CodingKey {
+    case id
+    case title
+    case imageURL = "img"
+  }
 }
