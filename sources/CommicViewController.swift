@@ -16,6 +16,12 @@ class CommicViewController: UIViewController {
     return swipeGesture
   }()
 
+  lazy var forwardGestureRecognizer: UISwipeGestureRecognizer = {
+    var swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleForwardGesture(_:)))
+    swipeGesture.direction = .right
+    return swipeGesture
+  }()
+
   override func viewDidLoad() {
     super.viewDidLoad()
     setupSubViews()
@@ -48,12 +54,17 @@ class CommicViewController: UIViewController {
     commicImageView.isUserInteractionEnabled = true
     view.isUserInteractionEnabled = true
     view.addGestureRecognizer(backGesturRecognizer)
+    view.addGestureRecognizer(forwardGestureRecognizer)
   }
 
   // MARK: - ACTIONS
 
   @objc func handleBackGesture(_ sender: UISwipeGestureRecognizer) {
 
+  }
+
+  @objc func handleForwardGesture(_ sender: UISwipeGestureRecognizer) {
+    
   }
 
   /*
