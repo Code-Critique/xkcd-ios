@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct CommicModel: Codable {
+struct ComicModel: Codable {
   let id: Int
   let title: String
   let imageURL: URL
