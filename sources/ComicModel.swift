@@ -8,13 +8,13 @@
 import UIKit
 
 struct ComicModel: Codable {
-  let id: Int
+  let id: Int // swiftlint:disable:this identifier_name
   let title: String
   let imageURL: URL
   var image: UIImage?
 
   enum CodingKeys: String, CodingKey {
-    case id
+    case id // swiftlint:disable:this identifier_name
     case title
     case imageURL = "img"
   }

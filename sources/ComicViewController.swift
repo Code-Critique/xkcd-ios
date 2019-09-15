@@ -10,16 +10,6 @@ import UIKit
 class ComicViewController: UIViewController {
   let comicImageView = UIImageView()
 
-  var historyStack = ComicStack()
-  var futureStack = ComicStack()
-  var currentComic: ComicModel? {
-    didSet {
-      comicImageView.image = currentComic?.image
-    }
-  }
-
-
-
   lazy var backGestureRecognizer: UISwipeGestureRecognizer = {
     var swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleBackGesture(_:)))
     swipeGesture.direction = .right
@@ -32,11 +22,21 @@ class ComicViewController: UIViewController {
     return swipeGesture
   }()
 
+  var historyStack = ComicStack()
+  var futureStack = ComicStack()
+  var currentComic: ComicModel? {
+    didSet {
+      comicImageView.image = currentComic?.image
+    }
+  }
+
+  // MARK: LIFE CYCLE METHODS
+
   override func viewDidLoad() {
     super.viewDidLoad()
     setupSubViews()
     loadFutureStack()
-    currentComic = futureStack.pop()
+    nextComic()
   }
 
   private func setupSubViews() {
@@ -44,6 +44,8 @@ class ComicViewController: UIViewController {
     addConstraints()
     setUpCommicImageView()
   }
+
+  // MARK: SETUP
 
   private func addSubViews() {
     view.addSubview(comicImageView)
@@ -61,7 +63,6 @@ class ComicViewController: UIViewController {
   }
 
   private func setUpCommicImageView() {
-    comicImageView.image = UIImage(named: "Image")!
     comicImageView.contentMode = .scaleAspectFit
     comicImageView.isUserInteractionEnabled = true
     view.isUserInteractionEnabled = true
@@ -69,41 +70,73 @@ class ComicViewController: UIViewController {
     view.addGestureRecognizer(forwardGestureRecognizer)
   }
 
-  private func loadFutureStack() {
-    futureStack.push(ComicModel(id: 1, title: "One", imageURL: URL(fileURLWithPath: "www"), image: UIImage(named: "Image")!))
+  private func loadFutureStack() { // HardCoded Mock Data ToDo remove and replace
+    futureStack.push(ComicModel(
+      id: 1,
+      title: "One",
+      imageURL: URL(fileURLWithPath: "www"),
+      image: UIImage(named: "Image")!)
+    )
 
-    futureStack.push(ComicModel(id: 2, title: "Two", imageURL: URL(fileURLWithPath: "www"), image: UIImage(named: "Image2")!))
+    futureStack.push(ComicModel(
+      id: 2,
+      title: "Two",
+      imageURL: URL(fileURLWithPath: "www"),
+      image: UIImage(named: "Image2")!)
+    )
 
-        futureStack.push(ComicModel(id: 3, title: "Three", imageURL: URL(fileURLWithPath: "www"), image: UIImage(named: "Image3")!))
+    futureStack.push(ComicModel(
+      id: 3,
+      title: "Three",
+      imageURL: URL(fileURLWithPath: "www"), image: UIImage(named: "Image3")!)
+    )
 
-        futureStack.push(ComicModel(id: 4, title: "Four", imageURL: URL(fileURLWithPath: "www"), image: UIImage(named: "Image4")!))
+    futureStack.push(ComicModel(
+      id: 4,
+      title: "Four",
+      imageURL: URL(fileURLWithPath: "www"),
+      image: UIImage(named: "Image4")!)
+    )
 
-        futureStack.push(ComicModel(id: 5, title: "Five", imageURL: URL(fileURLWithPath: "www"), image: UIImage(named: "Image5")!))
+    futureStack.push(ComicModel(
+      id: 5,
+      title: "Five",
+      imageURL: URL(fileURLWithPath: "www"),
+      image: UIImage(named: "Image5")!)
+    )
   }
 
-  // MARK: - ACTIONS
+  // MARK: UTILITIES
 
-  @objc func handleBackGesture(_ sender: UISwipeGestureRecognizer) {
-    guard let previousComic = historyStack.pop() else {
-      return
-    }
-
-    if let currentComic = currentComic {
-      futureStack.push(currentComic)
-    }
-
-    currentComic = previousComic
-  }
-
-  @objc func handleForwardGesture(_ sender: UISwipeGestureRecognizer) {
+  private func nextComic() {
     if let currentComic = currentComic {
       historyStack.push(currentComic)
     }
     currentComic = futureStack.pop()
   }
 
+  private func previousComic() {
+    guard let previousComic = historyStack.pop() else {
+      return
+    }
+    if let currentComic = currentComic {
+      futureStack.push(currentComic)
+    }
+    currentComic = previousComic
+  }
+
+  // MARK: ACTIONS
+
+  @objc func handleBackGesture(_ sender: UISwipeGestureRecognizer) {
+    previousComic()
+  }
+
+  @objc func handleForwardGesture(_ sender: UISwipeGestureRecognizer) {
+    nextComic()
+  }
+
   /*
-   // MARK: - Navigation
+   // MARK: Navigation
 
    // In a storyboard-based application, you will often want to do a little preparation before navigation
    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
