@@ -22,6 +22,7 @@ class ComicViewController: UIViewController {
     return swipeGesture
   }()
 
+  let xkcdModelController = XKCDModelController()
   var historyStack = ComicStack()
   var futureStack = ComicStack()
   var currentComic: ComicModel? {
@@ -35,7 +36,10 @@ class ComicViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     setupSubViews()
-    loadFutureStack()
+    let activityIndicator = UIActivityIndicatorView(style: .gray)
+    activityIndicator.startAnimating()
+
+    populate()
     nextComic()
   }
 
@@ -70,41 +74,7 @@ class ComicViewController: UIViewController {
     view.addGestureRecognizer(forwardGestureRecognizer)
   }
 
-  private func loadFutureStack() { // HardCoded Mock Data ToDo remove and replace
-    futureStack.push(ComicModel(
-      id: 1,
-      title: "One",
-      imageURL: URL(fileURLWithPath: "www"),
-      image: UIImage(named: "Image")!)
-    )
 
-    futureStack.push(ComicModel(
-      id: 2,
-      title: "Two",
-      imageURL: URL(fileURLWithPath: "www"),
-      image: UIImage(named: "Image2")!)
-    )
-
-    futureStack.push(ComicModel(
-      id: 3,
-      title: "Three",
-      imageURL: URL(fileURLWithPath: "www"), image: UIImage(named: "Image3")!)
-    )
-
-    futureStack.push(ComicModel(
-      id: 4,
-      title: "Four",
-      imageURL: URL(fileURLWithPath: "www"),
-      image: UIImage(named: "Image4")!)
-    )
-
-    futureStack.push(ComicModel(
-      id: 5,
-      title: "Five",
-      imageURL: URL(fileURLWithPath: "www"),
-      image: UIImage(named: "Image5")!)
-    )
-  }
 
   // MARK: UTILITIES
 
@@ -146,3 +116,35 @@ class ComicViewController: UIViewController {
    */
 
 }
+
+//extension: Data Source
+extension ComicViewController: XKCDModelControllerDelegate {
+
+  private func populate() {
+    xkcdModelController.delegate = self
+    loadFutureStack()
+  }
+
+  private func loadFutureStack() {
+    // HardCoded First instance remove and replace with activity indicator
+    futureStack.push(ComicModel(
+      id: 1,
+      title: "One",
+      imageURL: URL(fileURLWithPath: "www"),
+      image: UIImage(named: "Image")!)
+    )
+    xkcdModelController.fetchRandom(count: 5, includeMostRecent: true)
+  }
+
+  func onComplete(comics: [XKCDComicModel]) {
+    _ = comics.map { futureStack.push(ComicModel(id: $0.comicId,
+                                     title: $0.title,
+                                     imageURL: URL(string: $0.imageUrl)!,
+                                     image: $0.image))
+    }
+  }
+}
+
+
+
+
