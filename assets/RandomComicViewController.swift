@@ -11,11 +11,8 @@ class RandomComicViewController: UIViewController {
 
   @IBOutlet weak var comicImage: UIImageView!
 
-
   override func viewDidLoad() {
         super.viewDidLoad()
-
-
     }
 
 
@@ -24,9 +21,6 @@ class RandomComicViewController: UIViewController {
     fetchComicData(completion: displayImage(comic:))
 
   }
-
-
-
 
 
   func generateRandomNumber() -> Int {
