@@ -17,14 +17,4 @@ struct Comic: Codable {
   var img: String
   var title: String
 
-//  enum CodingKeys: String, CodingKey {
-//    case month
-//    case num
-//    case link
-//    case year
-//    case news
-//    case transcript
-//    case img
-//    case title
-//  }
 }
