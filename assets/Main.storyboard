@@ -10,6 +10,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+
         <!--Random Comic View Controller-->
         <scene sceneID="Ooh-NW-QHY">
             <objects>
@@ -45,6 +46,16 @@
                             <constraint firstItem="AQf-oT-xOe" firstAttribute="height" secondItem="V0i-pd-vXS" secondAttribute="height" multiplier="0.75" id="hMc-gO-uim"/>
                             <constraint firstItem="NWr-ih-gdw" firstAttribute="top" secondItem="AQf-oT-xOe" secondAttribute="bottom" constant="10" id="xyf-El-U0Y"/>
                         </constraints>
+
+        <!--Comic View Controller-->
+        <scene sceneID="Ooh-NW-QHY">
+            <objects>
+                <viewController id="S9b-bH-BAh" customClass="ComicViewController" customModule="xkcd" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="V0i-pd-vXS">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+
                         <viewLayoutGuide key="safeArea" id="eSM-oR-ihb"/>
                     </view>
                     <connections>
