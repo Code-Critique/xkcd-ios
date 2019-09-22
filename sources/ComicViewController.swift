@@ -66,7 +66,6 @@ class ComicViewController: UIViewController {
   }
 
 
-
   // MARK: UTILITIES
 
   private func nextComic() {
@@ -101,14 +100,12 @@ class ComicViewController: UIViewController {
     nextComic()
   }
 
-
-
    private func fetchComicData(completion: @escaping (Comic) -> Void) {
 
      let number = generateRandomNumber()
      let urlString = "https://xkcd.com/\(number)/info.0.json"
      let url = URL(string: urlString)
-     let session = URLSession.shared.dataTask(with: url!) { (data, response, error) in
+     let session = URLSession.shared.dataTask(with: url!) { (data, _, _) in
 
        let jsonDecoder = JSONDecoder()
 
@@ -129,10 +126,9 @@ class ComicViewController: UIViewController {
      session.resume()
    }
 
-
    private func displayImage(comic: Comic) {
      guard let url = URL(string: comic.img) else {return}
-     let session = URLSession.shared.dataTask(with: url) { (data, response, error) in
+     let session = URLSession.shared.dataTask(with: url) { (data, _, _) in
 
        guard let data = data else {
          print("No data has been returned")
@@ -147,6 +143,5 @@ class ComicViewController: UIViewController {
      }
      session.resume()
    }
-
 
 }
