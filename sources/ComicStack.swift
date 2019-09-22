@@ -8,17 +8,17 @@
 import Foundation
 
 class ComicStack {
-  private var array = [ComicModel]()
+  private var array = [Comic]()
 
-  func peek() -> ComicModel? {
+  func peek() -> Comic? {
     return array.last
   }
 
-  func pop() -> ComicModel? {
+  func pop() -> Comic? {
     return array.popLast()
   }
 
-  func push(_ newElement: ComicModel) {
+  func push(_ newElement: Comic) {
     array.append(newElement)
   }
 }
