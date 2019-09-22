@@ -24,7 +24,7 @@ class ComicViewController: UIViewController {
 
   var historyStack = ComicStack()
   var futureStack = ComicStack()
-  var currentComic: Comic?
+  var currentComic: ComicModel?
 
   // MARK: LIFE CYCLE METHODS
 
@@ -100,7 +100,7 @@ class ComicViewController: UIViewController {
     nextComic()
   }
 
-   private func fetchComicData(completion: @escaping (Comic) -> Void) {
+   private func fetchComicData(completion: @escaping (ComicModel) -> Void) {
 
      let number = generateRandomNumber()
      let urlString = "https://xkcd.com/\(number)/info.0.json"
@@ -115,7 +115,7 @@ class ComicViewController: UIViewController {
 
        }
        do {
-         let comicInfo = try jsonDecoder.decode(Comic.self, from: data)
+         let comicInfo = try jsonDecoder.decode(ComicModel.self, from: data)
          completion(comicInfo)
 
        } catch {
@@ -126,9 +126,8 @@ class ComicViewController: UIViewController {
      session.resume()
    }
 
-   private func displayImage(comic: Comic) {
-     guard let url = URL(string: comic.img) else {return}
-     let session = URLSession.shared.dataTask(with: url) { (data, _, _) in
+   private func displayImage(comic: ComicModel) {
+     let session = URLSession.shared.dataTask(with: comic.imageURL) { (data, _, _) in
 
        guard let data = data else {
          print("No data has been returned")

@@ -25,7 +25,7 @@ class RandomComicViewController: UIViewController {
     return Int.random(in: 0 ... 2198)
   }
 
-  func fetchComicData(completion: @escaping (Comic) -> Void) {
+  func fetchComicData(completion: @escaping (ComicModel) -> Void) {
     let number = generateRandomNumber()
     let urlString = "https://xkcd.com/\(number)/info.0.json"
     let url = URL(string: urlString)
@@ -39,7 +39,7 @@ class RandomComicViewController: UIViewController {
 
       }
       do {
-        let comicInfo = try jsonDecoder.decode(Comic.self, from: data)
+        let comicInfo = try jsonDecoder.decode(ComicModel.self, from: data)
         completion(comicInfo)
 
       } catch {
@@ -50,9 +50,8 @@ class RandomComicViewController: UIViewController {
     session.resume()
   }
 
-  func displayImage(comic: Comic) {
-    guard let url = URL(string: comic.img) else {return}
-    let session = URLSession.shared.dataTask(with: url) { (data, _, _) in
+  func displayImage(comic: ComicModel) {
+    let session = URLSession.shared.dataTask(with: comic.imageURL) { (data, _, _) in
 
       guard let data = data else {
         print("No data has been returned")

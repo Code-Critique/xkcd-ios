@@ -14,8 +14,21 @@ struct ComicModel: Codable {
   var image: UIImage?
 
   enum CodingKeys: String, CodingKey {
-    case id // swiftlint:disable:this identifier_name
+    case id = "num" // swiftlint:disable:this identifier_name
     case title
     case imageURL = "img"
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    id = try container.decode(Int.self, forKey: .id)
+    title = try container.decode(String.self, forKey: .title)
+    let urlString = try container.decode(String.self, forKey: .imageURL)
+
+    guard let imageURL = URL(string: urlString) else {
+      throw XKCDError.failedToParseURL
+    }
+
+    self.imageURL = imageURL
   }
 }
