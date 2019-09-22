@@ -31,4 +31,11 @@ struct ComicModel: Codable {
 
     self.imageURL = imageURL
   }
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(id, forKey: .id)
+    try container.encode(title, forKey: .title)
+    try container.encode(imageURL.absoluteString, forKey: .imageURL)
+  }
 }
