@@ -24,19 +24,14 @@ class ComicViewController: UIViewController {
 
   var historyStack = ComicStack()
   var futureStack = ComicStack()
-  var currentComic: ComicModel? {
-    didSet {
-      comicImageView.image = currentComic?.image
-    }
-  }
+  var currentComic: ComicModel?
 
   // MARK: LIFE CYCLE METHODS
 
   override func viewDidLoad() {
     super.viewDidLoad()
     setupSubViews()
-    loadFutureStack()
-    nextComic()
+    fetchComicData(completion: displayImage(comic:))
   }
 
   private func setupSubViews() {
@@ -70,41 +65,6 @@ class ComicViewController: UIViewController {
     view.addGestureRecognizer(forwardGestureRecognizer)
   }
 
-  private func loadFutureStack() { // HardCoded Mock Data ToDo remove and replace
-    futureStack.push(ComicModel(
-      id: 1,
-      title: "One",
-      imageURL: URL(fileURLWithPath: "www"),
-      image: UIImage(named: "Image")!)
-    )
-
-    futureStack.push(ComicModel(
-      id: 2,
-      title: "Two",
-      imageURL: URL(fileURLWithPath: "www"),
-      image: UIImage(named: "Image2")!)
-    )
-
-    futureStack.push(ComicModel(
-      id: 3,
-      title: "Three",
-      imageURL: URL(fileURLWithPath: "www"), image: UIImage(named: "Image3")!)
-    )
-
-    futureStack.push(ComicModel(
-      id: 4,
-      title: "Four",
-      imageURL: URL(fileURLWithPath: "www"),
-      image: UIImage(named: "Image4")!)
-    )
-
-    futureStack.push(ComicModel(
-      id: 5,
-      title: "Five",
-      imageURL: URL(fileURLWithPath: "www"),
-      image: UIImage(named: "Image5")!)
-    )
-  }
 
   // MARK: UTILITIES
 
@@ -112,18 +72,23 @@ class ComicViewController: UIViewController {
     if let currentComic = currentComic {
       historyStack.push(currentComic)
     }
-    currentComic = futureStack.pop()
+     fetchComicData(completion: displayImage(comic:))
   }
 
   private func previousComic() {
     guard let previousComic = historyStack.pop() else {
       return
     }
+    displayImage(comic: previousComic)
     if let currentComic = currentComic {
       futureStack.push(currentComic)
     }
     currentComic = previousComic
   }
+
+  private func generateRandomNumber() -> Int {
+      return Int.random(in: 0 ... 2198)
+    }
 
   // MARK: ACTIONS
 
@@ -135,14 +100,47 @@ class ComicViewController: UIViewController {
     nextComic()
   }
 
-  /*
-   // MARK: Navigation
+   private func fetchComicData(completion: @escaping (ComicModel) -> Void) {
 
-   // In a storyboard-based application, you will often want to do a little preparation before navigation
-   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-   // Get the new view controller using segue.destination.
-   // Pass the selected object to the new view controller.
+     let number = generateRandomNumber()
+     let urlString = "https://xkcd.com/\(number)/info.0.json"
+     let url = URL(string: urlString)
+     let session = URLSession.shared.dataTask(with: url!) { (data, _, _) in
+
+       let jsonDecoder = JSONDecoder()
+
+       guard let data = data else {
+         print("No data has been returned")
+         return
+
+       }
+       do {
+         let comicInfo = try jsonDecoder.decode(ComicModel.self, from: data)
+         completion(comicInfo)
+
+       } catch {
+         print("Failed at decoding")
+       }
+     }
+
+     session.resume()
    }
-   */
+
+   private func displayImage(comic: ComicModel) {
+     let session = URLSession.shared.dataTask(with: comic.imageURL) { (data, _, _) in
+
+       guard let data = data else {
+         print("No data has been returned")
+         return
+       }
+       let image = UIImage(data: data)
+       DispatchQueue.main.async {
+        self.currentComic = comic
+        self.comicImageView.image = image
+       }
+
+     }
+     session.resume()
+   }
 
 }
