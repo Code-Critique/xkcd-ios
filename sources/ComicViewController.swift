@@ -22,6 +22,10 @@ class ComicViewController: UIViewController {
     return swipeGesture
   }()
 
+  lazy var tapGestureRecognizer: UITapGestureRecognizer = {
+    return UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
+  }()
+
   var historyStack = ComicStack()
   var futureStack = ComicStack()
   var currentComic: ComicModel? {
@@ -52,7 +56,9 @@ class ComicViewController: UIViewController {
   }
 
   private func addConstraints() {
-    view.translatesAutoresizingMaskIntoConstraints = false
+    // TODO - Added by Arun
+    // commenting the next line because we are still loading this view fro the storyboard
+    // view.translatesAutoresizingMaskIntoConstraints = false
     comicImageView.translatesAutoresizingMaskIntoConstraints = false
 
     view.centerXAnchor.constraint(equalTo: comicImageView.centerXAnchor).isActive = true
@@ -68,6 +74,7 @@ class ComicViewController: UIViewController {
     view.isUserInteractionEnabled = true
     view.addGestureRecognizer(backGestureRecognizer)
     view.addGestureRecognizer(forwardGestureRecognizer)
+    comicImageView.addGestureRecognizer(tapGestureRecognizer)
   }
 
   private func loadFutureStack() { // HardCoded Mock Data ToDo remove and replace
@@ -125,6 +132,14 @@ class ComicViewController: UIViewController {
     currentComic = previousComic
   }
 
+  private func showDetails() {
+    let comicDetailsViewController = ComicDetailsViewController()
+    comicDetailsViewController.comicId = currentComic?.id
+    comicDetailsViewController.comicImage = currentComic?.image
+    let navigationController = UINavigationController(rootViewController: comicDetailsViewController)
+    present(navigationController, animated: false)
+  }
+
   // MARK: ACTIONS
 
   @objc func handleBackGesture(_ sender: UISwipeGestureRecognizer) {
@@ -135,6 +150,9 @@ class ComicViewController: UIViewController {
     nextComic()
   }
 
+  @objc func handleTapGesture(_ sender: UITapGestureRecognizer) {
+    showDetails()
+  }
   /*
    // MARK: Navigation
 
