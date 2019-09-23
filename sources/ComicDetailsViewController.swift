@@ -138,7 +138,9 @@ extension ComicDetailsViewController: UICollectionViewDataSource {
   }
 
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as! TagCell
+    guard let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as? TagCell else {
+      return UICollectionViewCell()
+    }
     tagCell.textLabel.text = tags?[indexPath.row]
     return tagCell
   }
