@@ -22,6 +22,10 @@ class ComicViewController: UIViewController {
     return swipeGesture
   }()
 
+  lazy var tapGestureRecognizer: UITapGestureRecognizer = {
+    return UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
+  }()
+
   var historyStack = ComicStack()
   var futureStack = ComicStack()
   var currentComic: ComicModel?
@@ -47,7 +51,9 @@ class ComicViewController: UIViewController {
   }
 
   private func addConstraints() {
-    view.translatesAutoresizingMaskIntoConstraints = false
+    // TODO - Added by Arun
+    // commenting the next line because we are still loading this view fro the storyboard
+    // view.translatesAutoresizingMaskIntoConstraints = false
     comicImageView.translatesAutoresizingMaskIntoConstraints = false
 
     view.centerXAnchor.constraint(equalTo: comicImageView.centerXAnchor).isActive = true
@@ -63,6 +69,7 @@ class ComicViewController: UIViewController {
     view.isUserInteractionEnabled = true
     view.addGestureRecognizer(backGestureRecognizer)
     view.addGestureRecognizer(forwardGestureRecognizer)
+    comicImageView.addGestureRecognizer(tapGestureRecognizer)
   }
 
 
@@ -72,7 +79,7 @@ class ComicViewController: UIViewController {
     if let currentComic = currentComic {
       historyStack.push(currentComic)
     }
-     fetchComicData(completion: displayImage(comic:))
+    fetchComicData(completion: displayImage(comic:))
   }
 
   private func previousComic() {
@@ -86,9 +93,19 @@ class ComicViewController: UIViewController {
     currentComic = previousComic
   }
 
+
+  private func showDetails() {
+    let comicDetailsViewController = ComicDetailsViewController()
+    comicDetailsViewController.comicId = currentComic?.id
+    comicDetailsViewController.comicImage = currentComic?.image
+    let navigationController = UINavigationController(rootViewController: comicDetailsViewController)
+    present(navigationController, animated: false)
+  }
+
   private func generateRandomNumber() -> Int {
-      return Int.random(in: 0 ... 2198)
-    }
+    return Int.random(in: 0 ... 2198)
+  }
+
 
   // MARK: ACTIONS
 
@@ -100,47 +117,52 @@ class ComicViewController: UIViewController {
     nextComic()
   }
 
-   private func fetchComicData(completion: @escaping (ComicModel) -> Void) {
+  @objc func handleTapGesture(_ sender: UITapGestureRecognizer) {
+    showDetails()
+  }
 
-     let number = generateRandomNumber()
-     let urlString = "https://xkcd.com/\(number)/info.0.json"
-     let url = URL(string: urlString)
-     let session = URLSession.shared.dataTask(with: url!) { (data, _, _) in
+  // MARK: Navigation
 
-       let jsonDecoder = JSONDecoder()
+  private func fetchComicData(completion: @escaping (ComicModel) -> Void) {
 
-       guard let data = data else {
-         print("No data has been returned")
-         return
+    let number = generateRandomNumber()
+    let urlString = "https://xkcd.com/\(number)/info.0.json"
+    let url = URL(string: urlString)
+    let session = URLSession.shared.dataTask(with: url!) { (data, _, _) in
 
-       }
-       do {
-         let comicInfo = try jsonDecoder.decode(ComicModel.self, from: data)
-         completion(comicInfo)
+      let jsonDecoder = JSONDecoder()
 
-       } catch {
-         print("Failed at decoding")
-       }
-     }
+      guard let data = data else {
+        print("No data has been returned")
+        return
 
-     session.resume()
-   }
+      }
+      do {
+        let comicInfo = try jsonDecoder.decode(ComicModel.self, from: data)
+        completion(comicInfo)
 
-   private func displayImage(comic: ComicModel) {
-     let session = URLSession.shared.dataTask(with: comic.imageURL) { (data, _, _) in
+      } catch {
+        print("Failed at decoding")
+      }
+    }
 
-       guard let data = data else {
-         print("No data has been returned")
-         return
-       }
-       let image = UIImage(data: data)
-       DispatchQueue.main.async {
+    session.resume()
+  }
+
+  private func displayImage(comic: ComicModel) {
+    let session = URLSession.shared.dataTask(with: comic.imageURL) { (data, _, _) in
+
+      guard let data = data else {
+        print("No data has been returned")
+        return
+      }
+      let image = UIImage(data: data)
+      DispatchQueue.main.async {
         self.currentComic = comic
         self.comicImageView.image = image
-       }
+      }
 
-     }
-     session.resume()
-   }
-
+    }
+    session.resume()
+  }
 }
