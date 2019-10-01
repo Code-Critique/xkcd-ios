@@ -12,14 +12,14 @@ class ComicDetailsViewController: UIViewController {
   var tags:[String]?
 
   //Mark: UI Elements
-  let comicImageView: UIImageView = {
+  fileprivate let comicImageView: UIImageView = {
     let imageView = UIImageView(frame: CGRect(x: 0,y: 0,width: 150,height: 150))
     imageView.contentMode = UIView.ContentMode.scaleAspectFill
     imageView.clipsToBounds = true
     return imageView
   }()
 
-  let tagCollectionView: UICollectionView = {
+  fileprivate let tagCollectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
     layout.scrollDirection = .vertical
     layout.estimatedItemSize = CGSize(width: 30, height: 30)
@@ -30,7 +30,7 @@ class ComicDetailsViewController: UIViewController {
     return collectionView
   }()
 
-  let tagTextField: UITextField = {
+  fileprivate let tagTextField: UITextField = {
     let tagTextField = UITextField(frame: CGRect.zero)
     tagTextField.translatesAutoresizingMaskIntoConstraints = false
     tagTextField.borderStyle = .roundedRect
@@ -38,7 +38,7 @@ class ComicDetailsViewController: UIViewController {
     return tagTextField
   }()
 
-  let addTagButton: UIButton = {
+  fileprivate let addTagButton: UIButton = {
     let addTagButton = UIButton(frame: CGRect.zero)
     addTagButton.setTitle("Add", for: .normal)
     addTagButton.contentEdgeInsets =  UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
@@ -123,11 +123,13 @@ class ComicDetailsViewController: UIViewController {
   }
 
   //Mark: Navigation Actions
-  @objc func onSave() {
+  @objc
+  fileprivate func onSave() {
     //To do callback
   }
 
-  @objc func onCancel() {
+  @objc
+  fileprivate func onCancel() {
     dismiss(animated: true)
   }
 }
@@ -144,7 +146,6 @@ extension ComicDetailsViewController: UICollectionViewDataSource {
     tagCell.textLabel.text = tags?[indexPath.row]
     return tagCell
   }
-
 }
 
 extension ComicDetailsViewController: UICollectionViewDelegate {
@@ -154,7 +155,7 @@ extension ComicDetailsViewController: UICollectionViewDelegate {
 
 class TagCell: UICollectionViewCell {
 
-  var textLabel:UILabel = {
+  fileprivate var textLabel:UILabel = {
     let label = UILabel()
     label.translatesAutoresizingMaskIntoConstraints = false
     label.font = UIFont.preferredFont(forTextStyle: .subheadline)
