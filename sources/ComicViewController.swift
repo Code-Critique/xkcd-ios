@@ -9,6 +9,7 @@ import UIKit
 
 class ComicViewController: UIViewController {
   let comicImageView = UIImageView()
+  let networkManager = NetworkManager()
 
   lazy var backGestureRecognizer: UISwipeGestureRecognizer = {
     var swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleBackGesture(_:)))
@@ -35,7 +36,13 @@ class ComicViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     setupSubViews()
-    fetchComicData(completion: displayImage(comic:))
+    networkManager.fetchRandomComic { [weak self] (comic) in
+      guard let comic = comic else {
+        return
+      }
+
+      self?.displayImage(comic: comic)
+    }
   }
 
   private func setupSubViews() {
@@ -75,7 +82,13 @@ class ComicViewController: UIViewController {
     if let currentComic = currentComic {
       historyStack.push(currentComic)
     }
-    fetchComicData(completion: displayImage(comic:))
+
+    networkManager.fetchRandomComic { [weak self] (comicModel) in
+      guard let comicModel = comicModel else {
+        return
+      }
+      self?.displayImage(comic: comicModel)
+    }
   }
 
   private func previousComic() {
@@ -97,8 +110,17 @@ class ComicViewController: UIViewController {
     present(navigationController, animated: false)
   }
 
-  private func generateRandomNumber() -> Int {
-    return Int.random(in: 0 ... 2198)
+  private func displayImage(comic: ComicModel) {
+    networkManager.fetchImage(for: comic) { (image) in
+      guard let image = image else {
+        return
+      }
+
+      DispatchQueue.main.async {
+        self.currentComic = comic
+        self.comicImageView.image = image
+      }
+    }
   }
 
   // MARK: ACTIONS
@@ -113,50 +135,5 @@ class ComicViewController: UIViewController {
 
   @objc func handleTapGesture(_ sender: UITapGestureRecognizer) {
     showDetails()
-  }
-
-  // MARK: Navigation
-
-  private func fetchComicData(completion: @escaping (ComicModel) -> Void) {
-
-    let number = generateRandomNumber()
-    let urlString = "https://xkcd.com/\(number)/info.0.json"
-    let url = URL(string: urlString)
-    let session = URLSession.shared.dataTask(with: url!) { (data, _, _) in
-
-      let jsonDecoder = JSONDecoder()
-
-      guard let data = data else {
-        print("No data has been returned")
-        return
-
-      }
-      do {
-        let comicInfo = try jsonDecoder.decode(ComicModel.self, from: data)
-        completion(comicInfo)
-
-      } catch {
-        print("Failed at decoding")
-      }
-    }
-
-    session.resume()
-  }
-
-  private func displayImage(comic: ComicModel) {
-    let session = URLSession.shared.dataTask(with: comic.imageURL) { (data, _, _) in
-
-      guard let data = data else {
-        print("No data has been returned")
-        return
-      }
-      let image = UIImage(data: data)
-      DispatchQueue.main.async {
-        self.currentComic = comic
-        self.comicImageView.image = image
-      }
-
-    }
-    session.resume()
   }
 }
