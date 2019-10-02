@@ -3,6 +3,16 @@ options:
   minimumXcodeGenVersion: 2.5.0
   bundleIdPrefix: com.codecritique
 targets:
+  Tests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - tests
+    dependencies:
+      - target: xkcd
+    scheme:
+      testTargets:
+        - Tests
   xkcd:
     type: application
     platform: iOS
@@ -14,13 +24,3 @@ targets:
         name: SwiftLint
       - path: scripts/xcodeFormating.sh
         name: XcodeFormating
-  Tests:
-    type: bundle.unit-test
-    platform: iOS
-    sources:
-      - xkcdTests
-    dependencies:
-      - target: xkcd
-    scheme:
-      testTargets:
-        - Tests
