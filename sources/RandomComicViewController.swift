@@ -11,10 +11,6 @@ class RandomComicViewController: UIViewController {
 
   @IBOutlet weak var comicImage: UIImageView!
 
-  override func viewDidLoad() {
-        super.viewDidLoad()
-    }
-
   @IBAction func generateComic(_ sender: UIButton) {
 
     fetchComicData(completion: displayImage(comic:))
