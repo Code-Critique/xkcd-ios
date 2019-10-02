@@ -164,18 +164,23 @@ class TagCell: UICollectionViewCell {
 
   override init(frame: CGRect) {
     super.init(frame: frame)
+    commonInit()
+  }
+
+  required init?(coder aDecoder: NSCoder) {
+    super.init(coder: aDecoder)
+    commonInit()
+  }
+
+  private func commonInit() {
     addSubview(textLabel)
+
     textLabel.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
     textLabel.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
     self.widthAnchor.constraint(equalTo: textLabel.widthAnchor, constant: 8).isActive = true
     textLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
 
     layer.cornerRadius = 8.0
-  }
-
-  required init?(coder aDecoder: NSCoder) {
-    super.init(coder: aDecoder)
-    print("Not implemented")
   }
 
   override var isSelected: Bool {
