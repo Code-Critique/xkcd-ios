@@ -51,9 +51,6 @@ class ComicViewController: UIViewController {
   }
 
   private func addConstraints() {
-    // TODO - Added by Arun
-    // commenting the next line because we are still loading this view fro the storyboard
-    // view.translatesAutoresizingMaskIntoConstraints = false
     comicImageView.translatesAutoresizingMaskIntoConstraints = false
 
     view.centerXAnchor.constraint(equalTo: comicImageView.centerXAnchor).isActive = true
@@ -71,7 +68,6 @@ class ComicViewController: UIViewController {
     view.addGestureRecognizer(forwardGestureRecognizer)
     comicImageView.addGestureRecognizer(tapGestureRecognizer)
   }
-
 
   // MARK: UTILITIES
 
@@ -93,7 +89,6 @@ class ComicViewController: UIViewController {
     currentComic = previousComic
   }
 
-
   private func showDetails() {
     let comicDetailsViewController = ComicDetailsViewController()
     comicDetailsViewController.comicId = currentComic?.id
@@ -105,7 +100,6 @@ class ComicViewController: UIViewController {
   private func generateRandomNumber() -> Int {
     return Int.random(in: 0 ... 2198)
   }
-
 
   // MARK: ACTIONS
 

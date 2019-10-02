@@ -2,18 +2,17 @@
 // Created: 2019-09-21
 //
 
-
 import UIKit
 
 class ComicDetailsViewController: UIViewController {
 
-  var comicId:Int?
-  var comicImage:UIImage?
-  var tags:[String]?
+  var comicId: Int?
+  var comicImage: UIImage?
+  var tags: [String]?
 
-  //Mark: UI Elements
+  // MARK: UI Elements
   fileprivate let comicImageView: UIImageView = {
-    let imageView = UIImageView(frame: CGRect(x: 0,y: 0,width: 150,height: 150))
+    let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 150, height: 150))
     imageView.contentMode = UIView.ContentMode.scaleAspectFill
     imageView.clipsToBounds = true
     return imageView
@@ -47,7 +46,7 @@ class ComicDetailsViewController: UIViewController {
     return addTagButton
   }()
 
-  //Mark: Methods
+  // MARK: Methods
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .white
@@ -61,7 +60,7 @@ class ComicDetailsViewController: UIViewController {
     setupTagCollectionView()
   }
 
-  fileprivate static func createHorizontalRowStack() -> UIStackView{
+  fileprivate static func createHorizontalRowStack() -> UIStackView {
     let horizontalStackView = UIStackView(frame: CGRect.zero)
     horizontalStackView.axis = .horizontal
     horizontalStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -74,7 +73,7 @@ class ComicDetailsViewController: UIViewController {
   fileprivate static func createColumnStack() -> UIStackView {
     let verticalStackView = UIStackView(frame: CGRect.zero)
     verticalStackView.axis = .vertical
-    verticalStackView.translatesAutoresizingMaskIntoConstraints = false;
+    verticalStackView.translatesAutoresizingMaskIntoConstraints = false
     return verticalStackView
   }
 
@@ -107,8 +106,16 @@ class ComicDetailsViewController: UIViewController {
   }
 
   fileprivate func setupNavigationBar() {
-    navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(onCancel))
-    navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(onSave))
+    navigationItem.leftBarButtonItem = UIBarButtonItem(
+      barButtonSystemItem: .cancel,
+      target: self,
+      action: #selector(onCancel)
+    )
+    navigationItem.rightBarButtonItem = UIBarButtonItem(
+      barButtonSystemItem: .save,
+      target: self,
+      action: #selector(onSave)
+    )
     navigationController?.navigationBar.isTranslucent = false
   }
 
@@ -119,13 +126,13 @@ class ComicDetailsViewController: UIViewController {
   }
 
   fileprivate func loadTags() {
-    tags = ["Astronomy", "Discovery", "Futility", "Survival",  "Scientist"].sorted()
+    tags = ["Astronomy", "Discovery", "Futility", "Survival", "Scientist"].sorted()
   }
 
-  //Mark: Navigation Actions
+  // MARK: Navigation Actions
   @objc
   fileprivate func onSave() {
-    //To do callback
+    //Todo callback
   }
 
   @objc
@@ -140,7 +147,10 @@ extension ComicDetailsViewController: UICollectionViewDataSource {
   }
 
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    guard let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as? TagCell else {
+    guard let tagCell = collectionView.dequeueReusableCell(
+      withReuseIdentifier: "TagCell",
+      for: indexPath
+    ) as? TagCell else {
       return UICollectionViewCell()
     }
     tagCell.textLabel.text = tags?[indexPath.row]
@@ -152,10 +162,9 @@ extension ComicDetailsViewController: UICollectionViewDelegate {
 
 }
 
-
 class TagCell: UICollectionViewCell {
 
-  fileprivate var textLabel:UILabel = {
+  fileprivate var textLabel: UILabel = {
     let label = UILabel()
     label.translatesAutoresizingMaskIntoConstraints = false
     label.font = UIFont.preferredFont(forTextStyle: .subheadline)
