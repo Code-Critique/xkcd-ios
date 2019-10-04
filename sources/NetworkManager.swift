@@ -19,8 +19,8 @@ struct NetworkManager {
 
   func fetchComicData(id: Int, completion: @escaping (ComicModel?) -> Void) { // swiftlint:disable:this identifier_name
     let urlString = "https://xkcd.com/\(id)/info.0.json"
-    let url = URL(string: urlString)
-    let session = URLSession.shared.dataTask(with: url!) { (data, _, _) in
+    let url = URL(string: urlString)!
+    let dataTask = URLSession.shared.dataTask(with: url) { (data, _, _) in
 
       let jsonDecoder = JSONDecoder()
 
@@ -32,7 +32,7 @@ struct NetworkManager {
       let comicInfo = try? jsonDecoder.decode(ComicModel.self, from: data)
       completion(comicInfo)
     }
-    session.resume()
+    dataTask.resume()
   }
 
   func fetchImage(for comic: ComicModel, with completion: @escaping ((UIImage?) -> Void)) {
@@ -47,5 +47,40 @@ struct NetworkManager {
       completion(image)
     }
     session.resume()
+  }
+
+  func fetchTags(completion: @escaping ((Result<[Tag], Error>) -> Void)) {
+    let urlString = "https://ivggashpl0.execute-api.us-west-2.amazonaws.com/staging/tags"
+    let url = URL(string: urlString)!
+    let dataTask = URLSession.shared.dataTask(with: url) { (data, response, _) in
+
+      let jsonDecoder = JSONDecoder()
+
+      guard let data = data else {
+        guard let response = response as? HTTPURLResponse else {
+          completion(.failure(NetworkError.defaultNetworkError))
+          return
+        }
+
+        switch response.statusCode {
+        case (400 ..< 500):
+          completion(.failure(NetworkError.clientError))
+        case (500 ..< 600):
+          completion(.failure(NetworkError.serverError))
+        default:
+          completion(.failure(NetworkError.defaultNetworkError))
+        }
+
+        return
+      }
+
+      guard let tags = try? jsonDecoder.decode([Tag].self, from: data) else {
+        completion(.failure(XKCDError.failedToParseTagArray))
+        return
+      }
+
+      completion(.success(tags))
+    }
+    dataTask.resume()
   }
 }
