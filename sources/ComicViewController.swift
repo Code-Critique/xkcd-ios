@@ -26,6 +26,10 @@ class ComicViewController: UIViewController {
     return UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
   }()
 
+  lazy var longPressRecognizer: UILongPressGestureRecognizer = {
+    return UILongPressGestureRecognizer(target: self, action: #selector(handleLongPressGesture(_:)))
+  }()
+
   var historyStack = ComicStack()
   var futureStack = ComicStack()
   var currentComic: ComicModel?
@@ -70,8 +74,8 @@ class ComicViewController: UIViewController {
     view.addGestureRecognizer(backGestureRecognizer)
     view.addGestureRecognizer(forwardGestureRecognizer)
     comicImageView.addGestureRecognizer(tapGestureRecognizer)
+    comicImageView.addGestureRecognizer(longPressRecognizer)
   }
-
 
   // MARK: UTILITIES
 
@@ -93,7 +97,6 @@ class ComicViewController: UIViewController {
     currentComic = previousComic
   }
 
-
   private func showDetails() {
     let comicDetailsViewController = ComicDetailsViewController()
     comicDetailsViewController.comicId = currentComic?.id
@@ -106,6 +109,15 @@ class ComicViewController: UIViewController {
     return Int.random(in: 0 ... 2198)
   }
 
+  lazy var popupVC = PopupViewViewController()
+  private func showAltText() {
+    popupVC.altTextLabel.text = currentComic?.alt
+    view.addSubview(popupVC.view)
+  }
+
+  private func closeAltText() {
+    popupVC.view.removeFromSuperview()
+  }
 
   // MARK: ACTIONS
 
@@ -119,6 +131,14 @@ class ComicViewController: UIViewController {
 
   @objc func handleTapGesture(_ sender: UITapGestureRecognizer) {
     showDetails()
+  }
+
+  @objc func handleLongPressGesture(_ sender: UILongPressGestureRecognizer) {
+    if sender.state == .began {
+      showAltText()
+    } else if sender.state == .ended {
+      closeAltText()
+    }
   }
 
   // MARK: Navigation

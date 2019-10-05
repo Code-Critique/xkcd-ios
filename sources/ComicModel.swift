@@ -11,12 +11,14 @@ struct ComicModel: Codable {
   let id: Int // swiftlint:disable:this identifier_name
   let title: String
   let imageURL: URL
+  let alt: String
   var image: UIImage?
 
   enum CodingKeys: String, CodingKey {
     case id = "num" // swiftlint:disable:this identifier_name
     case title
     case imageURL = "img"
+    case alt
   }
 
   init(from decoder: Decoder) throws {
@@ -30,6 +32,7 @@ struct ComicModel: Codable {
     }
 
     self.imageURL = imageURL
+    alt = try container.decode(String.self, forKey: .alt)
   }
 
   func encode(to encoder: Encoder) throws {
