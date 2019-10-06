@@ -16,3 +16,5 @@ struct Tag: Codable {
     case comicId = "id"
   }
 }
+
+extension Tag: Hashable { }

@@ -5,6 +5,11 @@
 import UIKit
 
 class ComicDetailsViewController: UIViewController {
+  enum SearchTagSection: CaseIterable {
+    case onlySection
+  }
+
+  private var tagTableViewDataSource: UITableViewDiffableDataSource<SearchTagSection, Tag>?
 
   var comic: ComicModel?
   var comicImage: UIImage?
@@ -46,6 +51,12 @@ class ComicDetailsViewController: UIViewController {
     return addTagButton
   }()
 
+  fileprivate var searchTagTableView: UITableView = {
+    let tableView = UITableView(frame: CGRect.zero)
+    tableView.translatesAutoresizingMaskIntoConstraints = false
+    return tableView
+  }()
+
   // MARK: Methods
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -61,6 +72,14 @@ class ComicDetailsViewController: UIViewController {
     setupNavigationBar()
     layoutElements()
     setupTagCollectionView()
+    setUpSearchTagTableView()
+
+    let allTags = [Tag(title: "1", comicId: 1), Tag(title: "tag", comicId: 2)]
+    let snapShot = NSDiffableDataSourceSnapshot<SearchTagSection, Tag>()
+    snapShot.appendSections([SearchTagSection.onlySection])
+    snapShot.appendItems(allTags)
+    tagTableViewDataSource?.apply(snapShot)
+
   }
 
   fileprivate static func createHorizontalRowStack() -> UIStackView {
@@ -95,6 +114,7 @@ class ComicDetailsViewController: UIViewController {
     //Establish layout hierarchy
     stackContainer.addArrangedSubview(topRow)
     stackContainer.addArrangedSubview(middleRow)
+    stackContainer.addArrangedSubview(searchTagTableView)
     view.addSubview(stackContainer)
 
     //Add the constraints
@@ -102,6 +122,9 @@ class ComicDetailsViewController: UIViewController {
     comicImageView.widthAnchor.constraint(equalToConstant: 150).isActive = true
     tagTextField.heightAnchor.constraint(equalToConstant: 30).isActive = true
     addTagButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+
+    searchTagTableView.heightAnchor.constraint(equalToConstant: 150).isActive = true
+    searchTagTableView.widthAnchor.constraint(equalToConstant: 150).isActive = true
 
     stackContainer.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
     stackContainer.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
@@ -122,16 +145,33 @@ class ComicDetailsViewController: UIViewController {
     navigationController?.navigationBar.isTranslucent = false
   }
 
+  fileprivate func setUpSearchTagTableView() {
+    searchTagTableView.register(TagTableViewCell.self, forCellReuseIdentifier: "TagTableViewCell")
+    self.tagTableViewDataSource = makeTagTableViewDataSource()
+    searchTagTableView.dataSource = tagTableViewDataSource
+    searchTagTableView.delegate = self
+  }
+
+  private func makeTagTableViewDataSource() -> UITableViewDiffableDataSource<SearchTagSection, Tag> {
+    return UITableViewDiffableDataSource(
+    tableView: searchTagTableView) { (tableView, indexPath, tag) -> UITableViewCell? in
+      let cell = tableView.dequeueReusableCell(
+        withIdentifier: "TagTableViewCell",
+        for: indexPath
+      )
+
+      cell.textLabel?.text = tag.title
+      return cell
+    }
+  }
+
   fileprivate func setupTagCollectionView() {
-    tagCollectionView.register(TagCell.self, forCellWithReuseIdentifier: "TagCell")
+    tagCollectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: "TagCell")
     tagCollectionView.dataSource = self
     tagCollectionView.delegate = self
   }
 
   fileprivate func loadTags() {
-
-    // fet
-
     tags = ["Astronomy", "Discovery", "Futility", "Survival", "Scientist"].sorted()
   }
 
@@ -156,7 +196,7 @@ extension ComicDetailsViewController: UICollectionViewDataSource {
     guard let tagCell = collectionView.dequeueReusableCell(
       withReuseIdentifier: "TagCell",
       for: indexPath
-    ) as? TagCell else {
+    ) as? TagCollectionViewCell else {
       return UICollectionViewCell()
     }
     tagCell.textLabel.text = tags?[indexPath.row]
@@ -168,7 +208,15 @@ extension ComicDetailsViewController: UICollectionViewDelegate {
 
 }
 
-class TagCell: UICollectionViewCell {
+extension ComicDetailsViewController: UITableViewDelegate {
+
+}
+
+class TagTableViewCell: UITableViewCell {
+
+}
+
+class TagCollectionViewCell: UICollectionViewCell {
 
   fileprivate var textLabel: UILabel = {
     let label = UILabel()
