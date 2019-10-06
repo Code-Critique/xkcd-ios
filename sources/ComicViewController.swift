@@ -104,7 +104,7 @@ class ComicViewController: UIViewController {
 
   private func showDetails() {
     let comicDetailsViewController = ComicDetailsViewController()
-    comicDetailsViewController.comicId = currentComic?.id
+    comicDetailsViewController.comic = currentComic
     comicDetailsViewController.comicImage = currentComic?.image
     let navigationController = UINavigationController(rootViewController: comicDetailsViewController)
     present(navigationController, animated: false)

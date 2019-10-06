@@ -6,7 +6,7 @@ import UIKit
 
 class ComicDetailsViewController: UIViewController {
 
-  var comicId: Int?
+  var comic: ComicModel?
   var comicImage: UIImage?
   var tags: [String]?
 
@@ -51,8 +51,11 @@ class ComicDetailsViewController: UIViewController {
     super.viewDidLoad()
     view.backgroundColor = .white
 
-    title = comicId.map { String($0) } ?? "Unknown"
-    comicImageView.image = comicImage
+    if let title = comic?.id {
+      self.title = String(title)
+    } else {
+      title = "unknown"
+    }
 
     loadTags()
     setupNavigationBar()
@@ -126,6 +129,9 @@ class ComicDetailsViewController: UIViewController {
   }
 
   fileprivate func loadTags() {
+
+    // fet
+
     tags = ["Astronomy", "Discovery", "Futility", "Survival", "Scientist"].sorted()
   }
 
