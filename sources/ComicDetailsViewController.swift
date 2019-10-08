@@ -10,6 +10,7 @@ class ComicDetailsViewController: UIViewController {
   }
 
   private var tagTableViewDataSource: UITableViewDiffableDataSource<SearchTagSection, Tag>?
+  private var networkManager = NetworkManager()
 
   var comic: ComicModel?
   var comicImage: UIImage?
@@ -74,12 +75,17 @@ class ComicDetailsViewController: UIViewController {
     setupTagCollectionView()
     setUpSearchTagTableView()
 
-    let allTags = [Tag(title: "1", comicId: 1), Tag(title: "tag", comicId: 2)]
-    let snapShot = NSDiffableDataSourceSnapshot<SearchTagSection, Tag>()
-    snapShot.appendSections([SearchTagSection.onlySection])
-    snapShot.appendItems(allTags)
-    tagTableViewDataSource?.apply(snapShot)
-
+    networkManager.fetchTags { [weak self] (result) in
+      switch result {
+      case .success(let tags):
+        let snapShot = NSDiffableDataSourceSnapshot<SearchTagSection, Tag>()
+        snapShot.appendSections([SearchTagSection.onlySection])
+        snapShot.appendItems(tags)
+        self?.tagTableViewDataSource?.apply(snapShot)
+      case .failure(let error):
+        print("Error: ", error)
+      }
+    }
   }
 
   fileprivate static func createHorizontalRowStack() -> UIStackView {
@@ -100,8 +106,8 @@ class ComicDetailsViewController: UIViewController {
   }
 
   fileprivate func layoutElements() {
-
     let stackContainer = ComicDetailsViewController.createColumnStack()
+    stackContainer.distribution = .fill
     let topRow = ComicDetailsViewController.createHorizontalRowStack()
     let middleRow = ComicDetailsViewController.createHorizontalRowStack()
 
@@ -123,12 +129,12 @@ class ComicDetailsViewController: UIViewController {
     tagTextField.heightAnchor.constraint(equalToConstant: 30).isActive = true
     addTagButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
-    searchTagTableView.heightAnchor.constraint(equalToConstant: 150).isActive = true
-    searchTagTableView.widthAnchor.constraint(equalToConstant: 150).isActive = true
+    searchTagTableView.widthAnchor.constraint(equalTo: stackContainer.widthAnchor).isActive = true
 
     stackContainer.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
     stackContainer.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
     stackContainer.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+    stackContainer.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
   }
 
   fileprivate func setupNavigationBar() {
