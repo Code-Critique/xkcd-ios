@@ -9,7 +9,7 @@ import Foundation
 
 struct Tag: Codable {
   let title: String
-  let comicId: Int
+  let comicId: [Int]
 
   enum CodingKeys: String, CodingKey {
     case title
