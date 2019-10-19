@@ -11,10 +11,14 @@ class ComicDetailsViewController: UIViewController {
 
   private var tagTableViewDataSource: UITableViewDiffableDataSource<SearchTagSection, Tag>?
   private var networkManager = NetworkManager()
+  private var comicImage: UIImage?
+  private var tags: [String]?
 
-  var comic: ComicModel?
-  var comicImage: UIImage?
-  var tags: [String]?
+  var comic: ComicModel? {
+    didSet {
+      comicImage = comic?.image
+    }
+  }
 
   // MARK: UI Elements
   fileprivate let comicImageView: UIImageView = {
