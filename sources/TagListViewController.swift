@@ -32,17 +32,3 @@ class TagListViewController: UIViewController {
     layoutViews()
   }
 }
-
-class TagListDataSource: NSObject, UITableViewDataSource {
-  private var tags = [Tag(title: "Hello World", comicId: [12]), Tag(title: "Happy", comicId: [1])] //[Tag]()
-
-  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return tags.count
-  }
-
-  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell", for: indexPath)
-    cell.textLabel?.text = tags[indexPath.row].title
-    return cell
-  }
-}

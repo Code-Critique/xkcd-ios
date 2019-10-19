@@ -9,6 +9,21 @@ import UIKit
 
 class ComicViewController: UIViewController {
   private let comicImageView = UIImageView()
+  private lazy var tagsCollectionView: UICollectionView = {
+    let tagsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    tagsCollectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: "TagCell")
+    tagsCollectionView.register(AddTagCell.self, forCellWithReuseIdentifier: "AddCell")
+    tagsCollectionView.dataSource = self.tagsDataSource
+
+    tagsCollectionView.layer.cornerRadius = 8.0
+    tagsCollectionView.layer.borderWidth = 1.0
+    tagsCollectionView.layer.borderColor = UIColor.black.cgColor
+
+    tagsCollectionView.backgroundColor = .lightGray
+    return tagsCollectionView
+  }()
+
+  private let tagsDataSource = TagListDataSource()
   private let networkManager = NetworkManager()
 
   private lazy var backGestureRecognizer: UISwipeGestureRecognizer = {
@@ -54,16 +69,24 @@ class ComicViewController: UIViewController {
 
   private func addSubViews() {
     view.addSubview(comicImageView)
+    view.addSubview(tagsCollectionView)
   }
 
   private func addConstraints() {
     comicImageView.translatesAutoresizingMaskIntoConstraints = false
+    tagsCollectionView.translatesAutoresizingMaskIntoConstraints = false
 
     view.centerXAnchor.constraint(equalTo: comicImageView.centerXAnchor).isActive = true
+    view.centerXAnchor.constraint(equalTo: tagsCollectionView.centerXAnchor).isActive = true
 
     comicImageView.widthAnchor.constraint(equalTo: comicImageView.heightAnchor).isActive = true
+    tagsCollectionView.widthAnchor.constraint(equalTo: tagsCollectionView.heightAnchor).isActive = true
+
     comicImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50.0).isActive = true
+    tagsCollectionView.topAnchor.constraint(equalTo: comicImageView.bottomAnchor).isActive = true
+
     view.widthAnchor.constraint(equalTo: comicImageView.widthAnchor, constant: 40.0).isActive = true
+    view.widthAnchor.constraint(equalTo: tagsCollectionView.widthAnchor, constant: 40.0).isActive = true
   }
 
   private func setUpCommicImageView() {

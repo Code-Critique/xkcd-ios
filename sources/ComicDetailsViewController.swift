@@ -227,8 +227,7 @@ class TagTableViewCell: UITableViewCell {
 }
 
 class TagCollectionViewCell: UICollectionViewCell {
-
-  fileprivate var textLabel: UILabel = {
+  var textLabel: UILabel = {
     let label = UILabel()
     label.translatesAutoresizingMaskIntoConstraints = false
     label.font = UIFont.preferredFont(forTextStyle: .subheadline)
