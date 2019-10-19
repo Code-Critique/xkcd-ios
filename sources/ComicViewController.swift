@@ -28,7 +28,6 @@ class ComicViewController: UIViewController {
   }()
 
   var historyStack = ComicStack()
-  var futureStack = ComicStack()
   var currentComic: ComicModel?
 
   // MARK: LIFE CYCLE METHODS
@@ -96,9 +95,6 @@ class ComicViewController: UIViewController {
       return
     }
     displayImage(comic: previousComic)
-    if let currentComic = currentComic {
-      futureStack.push(currentComic)
-    }
     currentComic = previousComic
   }
 
