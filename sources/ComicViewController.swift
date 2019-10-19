@@ -8,27 +8,27 @@
 import UIKit
 
 class ComicViewController: UIViewController {
-  let comicImageView = UIImageView()
-  let networkManager = NetworkManager()
+  private let comicImageView = UIImageView()
+  private let networkManager = NetworkManager()
 
-  lazy var backGestureRecognizer: UISwipeGestureRecognizer = {
+  private lazy var backGestureRecognizer: UISwipeGestureRecognizer = {
     var swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleBackGesture(_:)))
     swipeGesture.direction = .right
     return swipeGesture
   }()
 
-  lazy var forwardGestureRecognizer: UISwipeGestureRecognizer = {
+  private lazy var forwardGestureRecognizer: UISwipeGestureRecognizer = {
     var swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(handleForwardGesture(_:)))
     swipeGesture.direction = .left
     return swipeGesture
   }()
 
-  lazy var tapGestureRecognizer: UITapGestureRecognizer = {
+  private lazy var tapGestureRecognizer: UITapGestureRecognizer = {
     return UITapGestureRecognizer(target: self, action: #selector(handleTapGesture(_:)))
   }()
 
-  var historyStack = ComicStack()
-  var currentComic: ComicModel?
+  private var historyStack = ComicStack()
+  private var currentComic: ComicModel?
 
   // MARK: LIFE CYCLE METHODS
 
