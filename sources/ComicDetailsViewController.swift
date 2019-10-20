@@ -2,24 +2,29 @@
 // Created: 2019-09-21
 //
 
-
 import UIKit
 
 class ComicDetailsViewController: UIViewController {
+  enum SearchTagSection: CaseIterable {
+    case onlySection
+  }
 
-  var comicId:Int?
-  var comicImage:UIImage?
-  var tags:[String]?
+  private var tagTableViewDataSource: UITableViewDiffableDataSource<SearchTagSection, Tag>?
+  private var networkManager = NetworkManager()
 
-  //Mark: UI Elements
-  let comicImageView: UIImageView = {
-    let imageView = UIImageView(frame: CGRect(x: 0,y: 0,width: 150,height: 150))
+  var comic: ComicModel?
+  var comicImage: UIImage?
+  var tags: [String]?
+
+  // MARK: UI Elements
+  fileprivate let comicImageView: UIImageView = {
+    let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 150, height: 150))
     imageView.contentMode = UIView.ContentMode.scaleAspectFill
     imageView.clipsToBounds = true
     return imageView
   }()
 
-  let tagCollectionView: UICollectionView = {
+  fileprivate let tagCollectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
     layout.scrollDirection = .vertical
     layout.estimatedItemSize = CGSize(width: 30, height: 30)
@@ -30,7 +35,7 @@ class ComicDetailsViewController: UIViewController {
     return collectionView
   }()
 
-  let tagTextField: UITextField = {
+  fileprivate let tagTextField: UITextField = {
     let tagTextField = UITextField(frame: CGRect.zero)
     tagTextField.translatesAutoresizingMaskIntoConstraints = false
     tagTextField.borderStyle = .roundedRect
@@ -38,7 +43,7 @@ class ComicDetailsViewController: UIViewController {
     return tagTextField
   }()
 
-  let addTagButton: UIButton = {
+  fileprivate let addTagButton: UIButton = {
     let addTagButton = UIButton(frame: CGRect.zero)
     addTagButton.setTitle("Add", for: .normal)
     addTagButton.contentEdgeInsets =  UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
@@ -47,21 +52,43 @@ class ComicDetailsViewController: UIViewController {
     return addTagButton
   }()
 
-  //Mark: Methods
+  fileprivate var searchTagTableView: UITableView = {
+    let tableView = UITableView(frame: CGRect.zero)
+    tableView.translatesAutoresizingMaskIntoConstraints = false
+    return tableView
+  }()
+
+  // MARK: Methods
   override func viewDidLoad() {
     super.viewDidLoad()
     view.backgroundColor = .white
 
-    title = comicId.map { String($0) } ?? "Unknown"
-    comicImageView.image = comicImage
+    if let title = comic?.id {
+      self.title = String(title)
+    } else {
+      title = "unknown"
+    }
 
     loadTags()
     setupNavigationBar()
     layoutElements()
     setupTagCollectionView()
+    setUpSearchTagTableView()
+
+    networkManager.fetchTags { [weak self] (result) in
+      switch result {
+      case .success(let tags):
+        let snapShot = NSDiffableDataSourceSnapshot<SearchTagSection, Tag>()
+        snapShot.appendSections([SearchTagSection.onlySection])
+        snapShot.appendItems(tags)
+        self?.tagTableViewDataSource?.apply(snapShot)
+      case .failure(let error):
+        print("Error: ", error)
+      }
+    }
   }
 
-  fileprivate static func createHorizontalRowStack() -> UIStackView{
+  fileprivate static func createHorizontalRowStack() -> UIStackView {
     let horizontalStackView = UIStackView(frame: CGRect.zero)
     horizontalStackView.axis = .horizontal
     horizontalStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -74,13 +101,13 @@ class ComicDetailsViewController: UIViewController {
   fileprivate static func createColumnStack() -> UIStackView {
     let verticalStackView = UIStackView(frame: CGRect.zero)
     verticalStackView.axis = .vertical
-    verticalStackView.translatesAutoresizingMaskIntoConstraints = false;
+    verticalStackView.translatesAutoresizingMaskIntoConstraints = false
     return verticalStackView
   }
 
   fileprivate func layoutElements() {
-
     let stackContainer = ComicDetailsViewController.createColumnStack()
+    stackContainer.distribution = .fill
     let topRow = ComicDetailsViewController.createHorizontalRowStack()
     let middleRow = ComicDetailsViewController.createHorizontalRowStack()
 
@@ -93,6 +120,7 @@ class ComicDetailsViewController: UIViewController {
     //Establish layout hierarchy
     stackContainer.addArrangedSubview(topRow)
     stackContainer.addArrangedSubview(middleRow)
+    stackContainer.addArrangedSubview(searchTagTableView)
     view.addSubview(stackContainer)
 
     //Add the constraints
@@ -101,33 +129,66 @@ class ComicDetailsViewController: UIViewController {
     tagTextField.heightAnchor.constraint(equalToConstant: 30).isActive = true
     addTagButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
+    searchTagTableView.widthAnchor.constraint(equalTo: stackContainer.widthAnchor).isActive = true
+
     stackContainer.leadingAnchor.constraint(equalTo: self.view.leadingAnchor).isActive = true
     stackContainer.trailingAnchor.constraint(equalTo: self.view.trailingAnchor).isActive = true
     stackContainer.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+    stackContainer.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
   }
 
   fileprivate func setupNavigationBar() {
-    navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(onCancel))
-    navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(onSave))
+    navigationItem.leftBarButtonItem = UIBarButtonItem(
+      barButtonSystemItem: .cancel,
+      target: self,
+      action: #selector(onCancel)
+    )
+    navigationItem.rightBarButtonItem = UIBarButtonItem(
+      barButtonSystemItem: .save,
+      target: self,
+      action: #selector(onSave)
+    )
     navigationController?.navigationBar.isTranslucent = false
   }
 
+  fileprivate func setUpSearchTagTableView() {
+    searchTagTableView.register(TagTableViewCell.self, forCellReuseIdentifier: "TagTableViewCell")
+    self.tagTableViewDataSource = makeTagTableViewDataSource()
+    searchTagTableView.dataSource = tagTableViewDataSource
+    searchTagTableView.delegate = self
+  }
+
+  private func makeTagTableViewDataSource() -> UITableViewDiffableDataSource<SearchTagSection, Tag> {
+    return UITableViewDiffableDataSource(
+    tableView: searchTagTableView) { (tableView, indexPath, tag) -> UITableViewCell? in
+      let cell = tableView.dequeueReusableCell(
+        withIdentifier: "TagTableViewCell",
+        for: indexPath
+      )
+
+      cell.textLabel?.text = tag.title
+      return cell
+    }
+  }
+
   fileprivate func setupTagCollectionView() {
-    tagCollectionView.register(TagCell.self, forCellWithReuseIdentifier: "TagCell")
+    tagCollectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: "TagCell")
     tagCollectionView.dataSource = self
     tagCollectionView.delegate = self
   }
 
   fileprivate func loadTags() {
-    tags = ["Astronomy", "Discovery", "Futility", "Survival",  "Scientist"].sorted()
+    tags = ["Astronomy", "Discovery", "Futility", "Survival", "Scientist"].sorted()
   }
 
-  //Mark: Navigation Actions
-  @objc func onSave() {
-    //To do callback
+  // MARK: Navigation Actions
+  @objc
+  fileprivate func onSave() {
+    //Todo callback
   }
 
-  @objc func onCancel() {
+  @objc
+  fileprivate func onCancel() {
     dismiss(animated: true)
   }
 }
@@ -138,23 +199,32 @@ extension ComicDetailsViewController: UICollectionViewDataSource {
   }
 
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    guard let tagCell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as? TagCell else {
+    guard let tagCell = collectionView.dequeueReusableCell(
+      withReuseIdentifier: "TagCell",
+      for: indexPath
+    ) as? TagCollectionViewCell else {
       return UICollectionViewCell()
     }
     tagCell.textLabel.text = tags?[indexPath.row]
     return tagCell
   }
-
 }
 
 extension ComicDetailsViewController: UICollectionViewDelegate {
 
 }
 
+extension ComicDetailsViewController: UITableViewDelegate {
 
-class TagCell: UICollectionViewCell {
+}
 
-  var textLabel:UILabel = {
+class TagTableViewCell: UITableViewCell {
+
+}
+
+class TagCollectionViewCell: UICollectionViewCell {
+
+  fileprivate var textLabel: UILabel = {
     let label = UILabel()
     label.translatesAutoresizingMaskIntoConstraints = false
     label.font = UIFont.preferredFont(forTextStyle: .subheadline)
@@ -163,18 +233,23 @@ class TagCell: UICollectionViewCell {
 
   override init(frame: CGRect) {
     super.init(frame: frame)
+    commonInit()
+  }
+
+  required init?(coder aDecoder: NSCoder) {
+    super.init(coder: aDecoder)
+    commonInit()
+  }
+
+  private func commonInit() {
     addSubview(textLabel)
+
     textLabel.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
     textLabel.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
     self.widthAnchor.constraint(equalTo: textLabel.widthAnchor, constant: 8).isActive = true
     textLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
 
     layer.cornerRadius = 8.0
-  }
-
-  required init?(coder aDecoder: NSCoder) {
-    super.init(coder: aDecoder)
-    print("Not implemented")
   }
 
   override var isSelected: Bool {
