@@ -36,14 +36,16 @@ extension TagListDataSource: UICollectionViewDataSource {
     }
 
     if row == tags.count {
-      guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AddCell", for: indexPath) as? AddTagCell else {
+      guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AddCell",
+                                                          for: indexPath) as? AddTagCell else {
         return UICollectionViewCell()
       }
 
       return cell
     }
 
-    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell", for: indexPath) as? TagCollectionViewCell else {
+    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagCell",
+                                                        for: indexPath) as? TagCollectionViewCell else {
       return UICollectionViewCell()
     }
 

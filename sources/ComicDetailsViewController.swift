@@ -82,7 +82,7 @@ class ComicDetailsViewController: UIViewController {
     networkManager.fetchTags { [weak self] (result) in
       switch result {
       case .success(let tags):
-        let snapShot = NSDiffableDataSourceSnapshot<SearchTagSection, Tag>()
+        var snapShot = NSDiffableDataSourceSnapshot<SearchTagSection, Tag>()
         snapShot.appendSections([SearchTagSection.onlySection])
         snapShot.appendItems(tags)
         self?.tagTableViewDataSource?.apply(snapShot)
