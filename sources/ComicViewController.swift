@@ -10,7 +10,11 @@ import UIKit
 class ComicViewController: UIViewController {
   private let comicImageView = UIImageView()
   private lazy var tagsCollectionView: UICollectionView = {
-    let tagsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    let flowLayout = UICollectionViewFlowLayout()
+    flowLayout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+    flowLayout.sectionInset = UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4)
+
+    let tagsCollectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
     tagsCollectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: "TagCell")
     tagsCollectionView.register(AddTagCell.self, forCellWithReuseIdentifier: "AddCell")
     tagsCollectionView.dataSource = self.tagsDataSource

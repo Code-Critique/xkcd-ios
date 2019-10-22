@@ -245,12 +245,24 @@ class TagCollectionViewCell: UICollectionViewCell {
   }
 
   private func commonInit() {
+
+    contentView.translatesAutoresizingMaskIntoConstraints = false
+
+    NSLayoutConstraint.activate([
+      contentView.leftAnchor.constraint(equalTo: leftAnchor, constant: 8),
+      contentView.rightAnchor.constraint(equalTo: rightAnchor, constant: 8),
+      contentView.topAnchor.constraint(equalTo: topAnchor, constant: 8),
+      contentView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 8)
+      ])
+
     addSubview(textLabel)
 
-    textLabel.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
-    textLabel.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
-    self.widthAnchor.constraint(equalTo: textLabel.widthAnchor, constant: 8).isActive = true
-    textLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+    NSLayoutConstraint.activate([
+      textLabel.topAnchor.constraint(equalTo: topAnchor),
+      textLabel.heightAnchor.constraint(equalTo: heightAnchor),
+      widthAnchor.constraint(equalTo: textLabel.widthAnchor, constant: 8),
+      textLabel.centerXAnchor.constraint(equalTo: centerXAnchor)
+    ])
 
     layer.cornerRadius = 8.0
   }

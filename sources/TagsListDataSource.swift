@@ -8,7 +8,10 @@
 import UIKit
 
 class TagListDataSource: NSObject {
-  private var tags = [Tag(title: "Hello World", comicId: [12]), Tag(title: "Happy", comicId: [1])] //[Tag]()
+  private var tags = [Tag(title: "Hello World", comicId: [12]),
+                      Tag(title: "Happy Thankgiving", comicId: [11]),
+                      Tag(title: "Bob", comicId: [14]),
+                      Tag(title: "It's a Small World After All", comicId: [1])] //[Tag]()
 }
 
 extension TagListDataSource: UITableViewDataSource {
