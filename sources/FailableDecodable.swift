@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 struct FailableDecodable<Base: Decodable>: Decodable {
   let base: Base?
 
