@@ -74,12 +74,12 @@ struct NetworkManager {
         return
       }
 
-      guard let tags = try? jsonDecoder.decode([Tag].self, from: data) else {
+      do {
+        let tags = try jsonDecoder.decode([FailableDecodable<Tag>].self, from: data).compactMap { $0.base }
+        completion(.success(tags))
+      } catch {
         completion(.failure(XKCDError.failedToParseTagArray))
-        return
       }
-
-      completion(.success(tags))
     }
     dataTask.resume()
   }

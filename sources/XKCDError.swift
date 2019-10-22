@@ -10,4 +10,5 @@ import Foundation
 enum XKCDError: Error {
   case failedToParseURL
   case failedToParseTagArray
+  case failedToParseTag
 }
