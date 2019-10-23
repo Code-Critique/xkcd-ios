@@ -9,4 +9,9 @@ import Foundation
 
 enum XKCDError: Error {
   case failedToParseURL
+<<<<<<< HEAD
+=======
+  case failedToParseTagArray
+  case failedToParseTag
+>>>>>>> a99641b... Initial Commit
 }
