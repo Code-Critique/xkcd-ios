@@ -11,16 +11,23 @@ class ComicDetailsViewController: UIViewController {
 
   private var tagTableViewDataSource: UITableViewDiffableDataSource<SearchTagSection, Tag>?
   private var networkManager = NetworkManager()
-  private var comicImage: UIImage?
   private var tags: [String]?
-
-  var comic: ComicModel? {
+  private var fetchedTags: [Tag]?
+  private var sampleFetchedTags = [Tag]()
+  private var sampleCurrentTagsList: [Tag]?
+  private var sampleUserInputTag: Tag? {
     didSet {
-      comicImage = comic?.image
+      setAddTagButtonEnable(sampleUserInputTag != nil)
     }
   }
 
-  // MARK: UI Elements
+  var comic: ComicModel? {
+    didSet {
+      comicImageView.image = comic?.image
+    }
+  }
+
+  // MARK: UI Elements PREV
   fileprivate let comicImageView: UIImageView = {
     let imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 150, height: 150))
     imageView.contentMode = UIView.ContentMode.scaleAspectFill
@@ -44,6 +51,7 @@ class ComicDetailsViewController: UIViewController {
     tagTextField.translatesAutoresizingMaskIntoConstraints = false
     tagTextField.borderStyle = .roundedRect
     tagTextField.backgroundColor = .white
+    tagTextField.clearButtonMode = UITextField.ViewMode.whileEditing
     return tagTextField
   }()
 
@@ -53,6 +61,7 @@ class ComicDetailsViewController: UIViewController {
     addTagButton.contentEdgeInsets =  UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
     addTagButton.backgroundColor = UIColor.blue
     addTagButton.layer.cornerRadius = 3.0
+    addTagButton.addTarget(self, action: #selector(onAddTag), for: .touchDown)
     return addTagButton
   }()
 
@@ -78,6 +87,8 @@ class ComicDetailsViewController: UIViewController {
     layoutElements()
     setupTagCollectionView()
     setUpSearchTagTableView()
+    setUpTagTextField()
+    setAddTagButtonEnable(false)
 
     networkManager.fetchTags { [weak self] (result) in
       switch result {
@@ -85,11 +96,18 @@ class ComicDetailsViewController: UIViewController {
         var snapShot = NSDiffableDataSourceSnapshot<SearchTagSection, Tag>()
         snapShot.appendSections([SearchTagSection.onlySection])
         snapShot.appendItems(tags)
-        self?.tagTableViewDataSource?.apply(snapShot)
+        DispatchQueue.main.async {
+          self?.tagTableViewDataSource?.apply(snapShot)
+        }
       case .failure(let error):
         print("Error: ", error)
       }
     }
+  }
+
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    testOverrideTableViewData()
   }
 
   fileprivate static func createHorizontalRowStack() -> UIStackView {
@@ -181,8 +199,88 @@ class ComicDetailsViewController: UIViewController {
     tagCollectionView.delegate = self
   }
 
+  fileprivate func setAddTagButtonEnable(_ enable: Bool) {
+    if enable {
+      addTagButton.isUserInteractionEnabled = true
+      addTagButton.alpha = 1.0
+    } else {
+      addTagButton.isUserInteractionEnabled = false
+      addTagButton.alpha = 0.20
+    }
+  }
+
   fileprivate func loadTags() {
     tags = ["Astronomy", "Discovery", "Futility", "Survival", "Scientist"].sorted()
+  }
+
+  fileprivate func testOverrideTableViewData() {
+    let tagSample = ["Action", "Adventure", "Apocalyptic", "Astronomy", "Autobiographical",
+                     "Aviation", "Biographical", "British girls", "Christmas", "Comedy", "Crime",
+                     "Crossover", "Detective", "Discovery", "Disney", "Drama", "Dystopian",
+                     "Educational", "Educational web‎", "Erotic", "Fantasy", "Feminist", "Futility",
+                     "Funny", "Historical", "Horror", "Humor", "Jungle", "Magical girl", "Martial arts",
+                     "Military ‎", "Music-themed", "Mystery", "Nautical", "Neo-noir", "Non-fiction",
+                     "Pantomime", "Photonovels", "Pirate", "Religious", "Romance", "School-themed",
+                     "Science fiction", "Slice of life", "Comics spin-offs‎", "Sports", "Spy",
+                     "Superhero‎", "Text", "Webtoons", "Western", "Workplace", "Yuri"].sorted()
+    for count in 0..<tagSample.count {
+      let tagObj = Tag(title: tagSample[count], comicId: [count])
+      sampleFetchedTags.append(tagObj)
+    }
+    updateSearchTagTableView(tagArray: sampleFetchedTags)
+  }
+
+  fileprivate func setUpTagTextField() {
+    tagTextField.delegate = self
+  }
+
+  fileprivate func searchTextFieldHandler(_ textField: UITextField, range: NSRange, string: String, shouldClean: Bool) {
+    guard let updatedString = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) else {
+      return
+    }
+
+    guard !sampleFetchedTags.isEmpty else {
+      return
+    }
+    // disable Add Button
+    sampleUserInputTag = nil
+
+    // search similar
+    let keyWord = updatedString.trimmingCharacters(in: .whitespaces)
+    if keyWord.isEmpty || shouldClean {  //show full list
+      updateSearchTagTableView(tagArray: sampleFetchedTags)
+      return
+    }
+
+    let similarTagArray = sampleFetchedTags.filter({ (tag) -> Bool in
+      return tag.title.lowercased().contains(keyWord.lowercased())
+    })
+
+    if !similarTagArray.isEmpty {
+      updateSearchTagTableView(tagArray: similarTagArray)
+    }
+
+    sampleUserInputTag = sampleFetchedTags.first(where: { $0.title.lowercased() == keyWord.lowercased() })
+
+  }
+
+  fileprivate func updateSearchTagTableView(tagArray: [Tag]) {
+    // MARK: todo:  this isn't seems like a popoer way to reload tableview,
+    // but searchTagTableView.reloadData() is not working
+    sampleCurrentTagsList = tagArray
+
+    var snapShot = NSDiffableDataSourceSnapshot<SearchTagSection, Tag>()
+    snapShot.appendSections([SearchTagSection.onlySection])
+    snapShot.appendItems(tagArray)
+
+    DispatchQueue.main.async {
+      self.tagTableViewDataSource?.apply(snapShot)
+    }
+  }
+
+  // MARK: Network Manager Post
+  fileprivate func postUserTag(tag: Tag?, comicModel: ComicModel?) {
+    // todo implent posting new tag
   }
 
   // MARK: Navigation Actions
@@ -194,6 +292,14 @@ class ComicDetailsViewController: UIViewController {
   @objc
   fileprivate func onCancel() {
     dismiss(animated: true)
+  }
+
+  @objc
+  fileprivate func onAddTag() {
+    print("add! \(String(describing: sampleUserInputTag)) \(String(describing: comic))")
+    postUserTag(tag: sampleUserInputTag, comicModel: comic)
+    tags?.append(sampleUserInputTag!.title)
+    self.tagCollectionView.reloadData()
   }
 }
 
@@ -219,7 +325,11 @@ extension ComicDetailsViewController: UICollectionViewDelegate {
 }
 
 extension ComicDetailsViewController: UITableViewDelegate {
-
+  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    let row = indexPath.row
+    sampleUserInputTag = sampleCurrentTagsList?[row]
+    tagTextField.text = sampleCurrentTagsList?[row].title
+  }
 }
 
 class TagTableViewCell: UITableViewCell {
@@ -278,5 +388,17 @@ class TagCollectionViewCell: UICollectionViewCell {
         textLabel.textColor = .black
       }
     }
+  }
+}
+
+extension ComicDetailsViewController: UITextFieldDelegate {
+  func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange,
+                 replacementString string: String) -> Bool {
+    searchTextFieldHandler(textField, range: range, string: string, shouldClean: false)
+    return true
+  }
+  func textFieldShouldClear(_ textField: UITextField) -> Bool {
+    searchTextFieldHandler(textField, range: NSRange(), string: "", shouldClean: true)
+    return true
   }
 }

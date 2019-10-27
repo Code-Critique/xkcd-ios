@@ -140,6 +140,7 @@ class ComicViewController: UIViewController {
 
       DispatchQueue.main.async {
         self.currentComic = comic
+        self.currentComic?.image = image // ToDo find a better place to set this
         self.comicImageView.image = image
       }
     }
