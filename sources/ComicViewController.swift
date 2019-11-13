@@ -18,6 +18,7 @@ class ComicViewController: UIViewController {
     tagsCollectionView.register(TagCollectionViewCell.self, forCellWithReuseIdentifier: "TagCell")
     tagsCollectionView.register(AddTagCell.self, forCellWithReuseIdentifier: "AddCell")
     tagsCollectionView.dataSource = self.tagsDataSource
+		tagsCollectionView.delegate = self
 
     tagsCollectionView.layer.cornerRadius = 8.0
     tagsCollectionView.layer.borderWidth = 1.0
@@ -159,4 +160,13 @@ class ComicViewController: UIViewController {
   @objc func handleTapGesture(_ sender: UITapGestureRecognizer) {
     showDetails()
   }
+}
+
+extension ComicViewController: UICollectionViewDelegate {
+	func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+		if collectionView.cellForItem(at: indexPath) is AddTagCell {
+			let tagListViewController = TagListViewController()
+			present(tagListViewController, animated: true)
+		}
+	}
 }

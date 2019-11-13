@@ -103,11 +103,7 @@ class ComicDetailsViewController: UIViewController {
         print("Error: ", error)
       }
     }
-  }
-
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-    testOverrideTableViewData()
+		testOverrideTableViewData() // Temp for development purposes todo remove this line 
   }
 
   fileprivate static func createHorizontalRowStack() -> UIStackView {
@@ -223,10 +219,12 @@ class ComicDetailsViewController: UIViewController {
                      "Pantomime", "Photonovels", "Pirate", "Religious", "Romance", "School-themed",
                      "Science fiction", "Slice of life", "Comics spin-offs‎", "Sports", "Spy",
                      "Superhero‎", "Text", "Webtoons", "Western", "Workplace", "Yuri"].sorted()
-    for count in 0..<tagSample.count {
-      let tagObj = Tag(title: tagSample[count], comicId: [count])
-      sampleFetchedTags.append(tagObj)
-    }
+
+
+		sampleFetchedTags = tagSample.map { (title) -> Tag in
+			Tag(title: title, comicId: [Int]())
+		}
+
     updateSearchTagTableView(tagArray: sampleFetchedTags)
   }
 
