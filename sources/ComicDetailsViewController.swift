@@ -145,6 +145,11 @@ class ComicDetailsViewController: UIViewController {
     comicImageView.heightAnchor.constraint(equalToConstant: 150).isActive = true
     comicImageView.widthAnchor.constraint(equalToConstant: 150).isActive = true
     tagTextField.heightAnchor.constraint(equalToConstant: 30).isActive = true
+		addTagButton.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 1000), for: .horizontal)
+		addTagButton.setContentHuggingPriority(UILayoutPriority(rawValue: 1000), for: .horizontal)
+
+		//contentCompressionResistancePriority(for: <#T##NSLayoutConstraint.Axis#>)
+		//addTagButton.widthAnchor.constraint(equalToConstant: 30).isActive = true
     addTagButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
 
     searchTagTableView.widthAnchor.constraint(equalTo: stackContainer.widthAnchor).isActive = true
